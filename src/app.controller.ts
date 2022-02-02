@@ -1,12 +1,19 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, Res } from '@nestjs/common';
+import axios from 'axios';
+import { Response } from 'express';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  async getImage(@Res() response: Response): Promise<Response<Buffer>> {
+    const imageResponse = await axios.get<ArrayBuffer>(
+      'https://pics.avs.io/al_square/1000/1000/S7.webp',
+      {
+        responseType: 'arraybuffer',
+      },
+    );
+    const imageBuffer = Buffer.from(imageResponse.data);
+
+    return response.setHeader('Content-Type', 'image/webp').send(imageBuffer);
   }
 }
